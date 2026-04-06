@@ -35,7 +35,8 @@ jobs:
           python-version: "3.11"
 
       - name: Install security tools
-        run: pip install bandit safety semgrep pip-licenses
+        run: |
+          pip install bandit safety semgrep pip-licenses
 
       - name: Bandit — static code analysis
         run: |
@@ -135,21 +136,21 @@ jobs:
             -t ${{ env.IMAGE_NAME }}:latest \
             ./app
 
-      - name: Trivy — scan container
-        uses: aquasecurity/trivy-action@v0.28.0
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
         with:
-          image-ref: "${{ env.IMAGE_NAME }}:${{ github.sha }}"
-          format: "sarif"
-          output: "trivy-results.sarif"
-          severity: "CRITICAL,HIGH"
-          exit-code: "0"
+          image-ref: ${{ env.IMAGE_NAME }}:${{ github.sha }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '0'
           ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
 
-      - name: Upload Trivy SARIF
+      - name: Upload Trivy results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
         if: always()
         with:
-          sarif_file: trivy-results.sarif
+          sarif_file: 'trivy-results.sarif'
 
       - name: Push image
         if: github.ref == 'refs/heads/main'
@@ -210,4 +211,5 @@ jobs:
 
       - name: Stop test container
         if: always()
-        run: docker stop test-app && docker rm test-app
+        run: |
+          docker stop test-app && docker rm test-app
