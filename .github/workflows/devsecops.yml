@@ -8,7 +8,8 @@ on:
   workflow_dispatch:
 
 env:
-  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/devsecops-project
+  nv:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ekher-test
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
