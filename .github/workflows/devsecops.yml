@@ -19,7 +19,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -56,9 +56,13 @@ jobs:
 
       - name: Safety CLI — check CVEs in dependencies
         run: |
-          safety check \
-            -r app/requirements.txt \
-            --json > safety-report.json || true
+          # Filtrer pywin32 si présent (Windows uniquement)
+          if [ -f app/requirements.txt ]; then
+            grep -v "pywin32" app/requirements.txt > app/requirements-linux.txt
+            safety check -r app/requirements-linux.txt --json > safety-report.json || true
+          else
+            echo "{}" > safety-report.json
+          fi
           echo "Safety scan complete"
 
       - name: Hadolint — Dockerfile lint
@@ -70,12 +74,15 @@ jobs:
 
       - name: Licence check
         run: |
-          pip install pip-licenses
-          pip install -r app/requirements.txt --quiet
+          # Installer sans pywin32
+          if [ -f app/requirements.txt ]; then
+            grep -v "pywin32" app/requirements.txt > app/requirements-linux.txt
+            pip install -r app/requirements-linux.txt --quiet || true
+          fi
           pip-licenses --format=json --output-file=licenses-report.json
 
       - name: Upload SAST reports
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: sast-reports
@@ -98,7 +105,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Checkov — IaC scan
         uses: bridgecrewio/checkov-action@master
@@ -118,13 +125,18 @@ jobs:
 
       - name: Build Docker image
         run: |
+          # Nettoyer requirements.txt pour Linux
+          if [ -f app/requirements.txt ]; then
+            grep -v "pywin32" app/requirements.txt > app/requirements-linux.txt
+            mv app/requirements-linux.txt app/requirements.txt
+          fi
           docker build \
             -t ${{ env.IMAGE_NAME }}:${{ github.sha }} \
             -t ${{ env.IMAGE_NAME }}:latest \
             ./app
 
       - name: Trivy — scan container
-        uses: aquasecurity/trivy-action@v0.35.0
+        uses: aquasecurity/trivy-action@v0.28.0
         with:
           image-ref: "${{ env.IMAGE_NAME }}:${{ github.sha }}"
           format: "sarif"
@@ -152,7 +164,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -189,7 +201,7 @@ jobs:
           cmd_options: "-I"
 
       - name: Upload ZAP report
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: zap-report
