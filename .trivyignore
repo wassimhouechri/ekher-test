@@ -1,0 +1,7 @@
+# .trivyignore — CVEs acceptés avec justification documentée
+# Format: CVE-YYYY-XXXXX  # Raison + date d'expiration
+#
+# Exemple:
+# CVE-2023-12345  # Accepté car non exploitable dans notre contexte — revoir le 2025-12-01
+#
+# NE PAS ajouter de CVEs sans justification documentée.

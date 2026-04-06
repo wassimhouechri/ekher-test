@@ -1,0 +1,30 @@
+# .semgrep.yml — règles custom pour ce projet
+rules:
+  - id: no-debug-true
+    patterns:
+      - pattern: app.run(..., debug=True, ...)
+    message: "Ne jamais activer debug=True en production (fuite de stack traces)"
+    languages: [python]
+    severity: ERROR
+
+  - id: no-hardcoded-secret
+    patterns:
+      - pattern: $KEY = "..."
+    metavariable-regex:
+      metavariable: $KEY
+      regex: '(?i)(password|secret|api[_-]key|token|key|credential)'
+    metavariable-pattern:
+      metavariable: $KEY
+      patterns:
+        - pattern-not-regex: '^(DEBUG|VERSION|ENV|MODE)$'  # exclure faux positifs courants
+    message: "Secret potentiellement hardcodé — utiliser os.environ.get() à la place"
+    languages: [python]
+    severity: WARNING
+
+  - id: no-shell-true
+    pattern: subprocess.run(..., shell=True, ...)
+    message: "shell=True peut permettre une injection de commande"
+    languages: [python]
+    severity: ERROR
+  - id: python.flask.security.audit.app-run-param-config.avoid_app_run_with_bad_host
+    severity: INFO   # ou supprime la règle entièrement

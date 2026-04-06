@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: flask-app-netpol
+  namespace: flask-app
+  labels:
+    app: flask-app
+spec:
+  podSelector:
+    matchLabels:
+      app: flask-app
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow only traffic on port 5000 from any source
+    - ports:
+        - protocol: TCP
+          port: 5000
+  egress:
+    # Allow DNS resolution only
+    - ports:
+        - protocol: UDP
+          port: 53
+        - protocol: TCP
+          port: 53

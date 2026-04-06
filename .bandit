@@ -1,0 +1,10 @@
+[bandit]
+# Skip test files and virtual environments
+exclude_dirs = ["tests", "venv", ".venv"]
+
+# Report MEDIUM severity and above (not LOW noise)
+severity = MEDIUM
+confidence = MEDIUM
+
+# Explicitly check for the most critical issues
+skips = []

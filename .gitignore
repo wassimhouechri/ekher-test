@@ -1,0 +1,27 @@
+# Python virtual environments
+.venv/
+venv/
+.venv-test-pipeline/
+env/
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+
+# Security scan reports (generated in CI — not source code)
+bandit-report.json
+safety-report.json
+semgrep-report.json
+licenses-report.json
+trivy-results.sarif
+report.html
+zap-report.html
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
